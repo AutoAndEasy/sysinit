@@ -111,10 +111,10 @@ echo "alias vi='vim'" >> /etc/bashrc
 
 ##Set default service at poweron
 for i in `chkconfig --list|grep 3:|cut -d" " -f1`;do
-	chkconfig --level 36 $i off
+	chkconfig --level 35 $i off
 done
 for i in $MyService;do
-	chkconfig --level 36 $i on
+	chkconfig --level 35 $i on
 done
 
 ##Set Iptables
