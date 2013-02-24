@@ -138,5 +138,5 @@ fi
 ############  Soft Config  ############
 
 ############  Clean Cache  ############
-rm -rf /tmp/sysinit
+rm -rf ${HomeDir}
 
