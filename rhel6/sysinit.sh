@@ -13,8 +13,8 @@ SSHPort="22"
 BasePkg="wget lrzsz sysstat ntpdate net-snmp expect"
 AppendPkg="bind-utils"
 MyService="crond iptables network rsyslog sshd snmpd"
-SrcHost="gitbub.com"
-SrcPath="/AutoAndEasy/sysinit/blob/master/rhel6/"
+SrcHost="https://raw.gitbub.com"
+SrcPath="/AutoAndEasy/sysinit/master/rhel6/"
 
 ##############    Main    ##############
 
@@ -63,7 +63,7 @@ updatedb
 if [ -f /usr/share/zoneinfo/Asia/Shanghai ]; then
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 else
-	wget --no-check-certificate https://${SrcHost}${SrcPath}usr/share/zoneinfo/Asia/Shanghai
+	wget --no-check-certificate ${SrcHost}${SrcPath}usr/share/zoneinfo/Asia/Shanghai
 	\cp Shanghai /etc/localtime
 fi
 
