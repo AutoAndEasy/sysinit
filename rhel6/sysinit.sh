@@ -1,10 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-##
-##This is use for Linux System Initialization
-##
+################ Script Info ################		
 
-#############Set Base Var#############
+## Program: This is use for Linux System Initialization
+## Author:chier xuefei
+## Date:2013-02-25
+## Update:None
+
+
+################ Env Define ################
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:~/sbin
+LANG=C
+export PATH
+export LANG
+
+################ Var Setting ################
 
 MyHost="localhost"
 MyDomain="localdomain"
@@ -16,16 +27,36 @@ MyService="crond iptables network rsyslog sshd snmpd"
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rhel6/"
 
-##############    Main    ##############
+################ Func Define ################ 
+function _info_msg() {
+_header
+echo -e " |                                                                |"
+echo -e " |                Thank you for use sysinit script!               |"
+echo -e " |                                                                |"
+echo -e " |                         Version: 1.0                           |"
+echo -e " |                                                                |"
+echo -e " |                     http://www.idcsrv.com                      |"
+echo -e " |                                                                |"
+echo -e " |                   Author:翅儿学飞(chier xuefei)                |"
+echo -e " |                      Email:myregs@126.com                      |"
+echo -e " |                         QQ:1810836851                          |"
+echo -e " |                         QQ群:61749648                          |"
+echo -e " |                                                                |"
+echo -e " |          Hit [ENTER] to continue or ctrl+c to exit             |"
+echo -e " |                                                                |"
+printf " o----------------------------------------------------------------o\n"	
+ read entcs 
+clear
+}
 
-if [ ! -d $HomeDir ]; then
-	mkdir -p $HomeDir
-fi
+function _header() {
+	printf " o----------------------------------------------------------------o\n"
+	printf " | :: SYSINIT                                 v1.0.0 (2013/02/25) |\n"
+	printf " o----------------------------------------------------------------o\n"	
+}
 
-cd $HomeDir
+##Program Function
 
-
-##SHELL Functions
 function changeconf() {
 #use method: changeconf attribute hyphen value file
 #Note: if hyphen is space then use the string 'space' replace ' '
@@ -46,6 +77,23 @@ function changeconf() {
 		sed -i "s/^${CC_Attr}.*/${CC_Attr}${CC_Hyphen}${CC_Value}/g" ${CC_File}
 	fi
 }
+
+################ Main ################
+clear
+_info_msg
+
+if [ `id -u` != "0" ]; then
+	echo -e "You need to be be the root user to run this script.\nWe also suggest you use a direct root login, not su -, sudo etc..."
+exit 1
+fi
+
+##############    Main    ##############
+
+if [ ! -d $HomeDir ]; then
+	mkdir -p $HomeDir
+fi
+
+cd $HomeDir || exit 1
 
 ############  System Config  ############
 ##Set Append DNS
