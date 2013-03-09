@@ -5,7 +5,7 @@
 ## Program: This is use for Linux System Initialization
 ## Author:chier xuefei
 ## Date:2013-02-25
-## Update:None
+## Update:20130309 chier xuefei add vim soft and it's config
 
 
 ################ Env Define ################
@@ -21,7 +21,7 @@ MyHost="localhost"
 MyDomain="localdomain"
 HomeDir="/tmp/sysinit/"
 SSHPort="22"
-BasePkg="wget lrzsz sysstat ntpdate net-snmp expect"
+BasePkg="wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced"
 AppendPkg="bind-utils"
 MyService="crond iptables network rsyslog sshd snmpd"
 SrcHost="https://raw.gitbub.com"
@@ -184,6 +184,12 @@ if [ -f /etc/selinux/config ]; then
 fi
 
 ############  Soft Config  ############
+
+##vim config
+echo '############# User Define ############' >> /etc/vimrc
+echo 'set ts=4' >> /etc/vimrc
+echo 'set expandtab' >> /etc/vimrc
+echo 'set autoindent' >> /etc/vimrc
 
 ############  Clean Cache  ############
 rm -rf ${HomeDir}
