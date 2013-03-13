@@ -21,9 +21,9 @@ MyHost="localhost"
 MyDomain="localdomain"
 HomeDir="/tmp/sysinit/"
 SSHPort="22"
-BasePkg="wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced"
-AppendPkg="bind-utils"
-MyService="crond iptables network rsyslog sshd snmpd"
+BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced policycoreutils iptables cronien rsyslog "
+AppendPkg=" bind-utils "
+MyService="crond iptables network rsyslog sshd snmpd policycoreutils"
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rhel6/"
 
@@ -186,7 +186,7 @@ fi
 ############  Soft Config  ############
 
 ##vim config
-echo '############# User Define ############' >> /etc/vimrc
+echo "''############# User Define ############" >> /etc/vimrc
 echo 'set ts=4' >> /etc/vimrc
 echo 'set expandtab' >> /etc/vimrc
 echo 'set autoindent' >> /etc/vimrc
