@@ -186,7 +186,7 @@ fi
 ############  Soft Config  ############
 
 ##vim config
-echo "''############# User Define ############" >> /etc/vimrc
+echo '"############# User Define ############' >> /etc/vimrc
 echo 'set ts=4' >> /etc/vimrc
 echo 'set expandtab' >> /etc/vimrc
 echo 'set autoindent' >> /etc/vimrc
