@@ -3,9 +3,9 @@
 ################ Script Info ################		
 
 ## Program: This is use for Raspberry Pi Initialization
-## Author:Clumart.G
-## Date:2013-04-29
-## Update:None
+## Author:  Clumart.G(翅儿学飞)
+## Date:    2013-01-02
+## Update:  2014010201 None
 
 
 ################ Env Define ################
@@ -19,11 +19,13 @@ export LANG
 
 MyHost="rpi01"
 MyDomain="idcsrv.com"
-HomeDir="/tmp/sysinit/"
-SSHPort="4422"
-#BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced policycoreutils iptables cronien rsyslog mlocate "
-#AppendPkg=" bind-utils "
-#MyService="crond iptables network rsyslog sshd snmpd"
+HomeDir="/tmp/autoscript/sysinit/"
+SSHPort="22"
+RootPass="raspberry"
+PiPass="raspberry"
+BasePkg=" wget lrzsz sysstat ntpdate expect vim iptables "
+AppendPkg=""
+MyService="cron networking ssh  "
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rpi/"
 
@@ -31,14 +33,14 @@ SrcPath="/AutoAndEasy/sysinit/master/rpi/"
 function _info_msg() {
 _header
 echo -e " |                                                                |"
-echo -e " |                Thank you for use sysinit script!               |"
+echo -e " |           Thank you for use sysinit of rpi script!             |"
 echo -e " |                                                                |"
 echo -e " |                         Version: 1.0                           |"
 echo -e " |                                                                |"
 echo -e " |                     http://www.idcsrv.com                      |"
 echo -e " |                                                                |"
 echo -e " |                   Author:翅儿学飞(Clumart.G)                   |"
-echo -e " |                      Email:myregs@126.com                      |"
+echo -e " |                    Email:myregs6@gmail.com                     |"
 echo -e " |                         QQ:1810836851                          |"
 echo -e " |                         QQ群:61749648                          |"
 echo -e " |                                                                |"
@@ -49,10 +51,45 @@ printf " o----------------------------------------------------------------o\n"
 clear
 }
 
+function _end_msg() {
+echo -e "###################################################################"
+echo ""
+echo -e "                         Install Finish :)"
+echo ""
+echo -e "###################################################################"
+echo ""
+echo ""
+_header
+echo -e " |                                                                |"
+echo -e " |                 Thank you for use this script!                 |"
+echo -e " |                                                                |"
+echo -e " |             This RaspberryPi has been Initialization!          |"
+echo -e " |                                                                |"
+echo -e " |                     http://www.idcsrv.com                      |"
+echo -e " |                                                                |"
+echo -e " |                   Author:翅儿学飞(Clumart.G)                   |"
+echo -e " |                    Email:myregs6@gmail.com                     |"
+echo -e " |                         QQ:1810836851                          |"
+echo -e " |                         QQ群:61749648                          |"
+echo -e " |                                                                |"
+printf " o----------------------------------------------------------------o\n"
+}
+
 function _header() {
 	printf " o----------------------------------------------------------------o\n"
-	printf " | :: SYSINIT                                 v1.0.0 (2013/04/29) |\n"
+	printf " | :: SYSINIT FOR RaspberryPi                 v1.0.0 (2014/01/02) |\n"
 	printf " o----------------------------------------------------------------o\n"	
+}
+
+function _error_exit() {
+    cd
+    rm -rf ${HomeDir}
+    clear
+    printf " o----------------------------------------------------------------o\n"
+    printf " | :: Error                                   v1.0.0 (2013-10-28) |\n"
+    printf " o----------------------------------------------------------------o\n"        
+    printf " Error Message:$1 \n"
+    exit 1
 }
 
 ##Program Function
@@ -89,15 +126,18 @@ if [ `id -u` != "0" ]; then
 exit 1
 fi
 
-##############    Main    ##############
-
 if [ ! -d $HomeDir ]; then
 	mkdir -p $HomeDir
 fi
 
-cd $HomeDir || exit 1
+cd $HomeDir || _error_exit "Enter ${HomeDir} Faild."
 
 ############  System Config  ############
+
+##password Initialization
+echo $RootPass | passwd --stdin root
+echo $PiPass | passwd --stdin pi
+
 ##Set Append DNS
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 echo "nameserver 8.8.4.4" >> /etc/resolv.conf
@@ -119,8 +159,8 @@ if [ -z "`whereis ntpdate |cut -d' ' -f2|grep '/'`" ]; then
 	echo "the ntp soft need install!";
 else
 	Ntpdate=`whereis ntpdate |cut -d' ' -f2`
-	$Ntpdate 0.us.pool.ntp.org
-	echo "3 * * * * root $Ntpdate 0.us.pool.ntp.org >> /dev/null 2>&1" >> /etc/crontab
+	$Ntpdate pool.ntp.org
+	echo "3 3 * * * root $Ntpdate pool.ntp.org >> /dev/null 2>&1" >> /etc/crontab
 fi
 
 ##Set Hostname
@@ -128,7 +168,7 @@ changeconf HOSTNAME = \"${MyHost}.${MyDomain}\" /etc/sysconfig/network
 
 ##Set SSH Port & Conf
 
-changeconf Port space 4422 /etc/ssh/sshd_config
+changeconf Port space $SSHPort /etc/ssh/sshd_config
 changeconf ClientAliveInterval space 60 /etc/ssh/sshd_config
 changeconf ClientAliveCountMax space 5 /etc/ssh/sshd_config
 ##create ssh key
@@ -185,11 +225,8 @@ fi
 ############  Soft Config  ############
 
 ##vim config
-echo '"############# User Define ############' >> /etc/vimrc
-echo 'set ts=4' >> /etc/vimrc
-echo 'set expandtab' >> /etc/vimrc
-echo 'set autoindent' >> /etc/vimrc
 
 ############  Clean Cache  ############
+cd
 rm -rf ${HomeDir}
-
+_end_msg
