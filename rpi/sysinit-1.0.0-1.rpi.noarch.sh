@@ -148,11 +148,11 @@ echo "root:${RootPass}" | chpasswd
 echo "pi:${PiPass}" | chpasswd
 
 ##Set Hostname
-echo "${MyHost}.${MyDomain}" >> /etc/hostname
+echo "${MyHost}.${MyDomain}" > /etc/hostname
 
 ##Set Language ,Language list in /usr/share/i18n/SUPPORTED
 echo "LANG=en_US.UTF-8" > /etc/default/locale
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+changeconf en_US.UTF-8 space UTF-8 /etc/locale.gen
 locale-gen
 
 ##init 3
