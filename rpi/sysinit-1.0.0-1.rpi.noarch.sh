@@ -23,9 +23,10 @@ HomeDir="/tmp/autoscript/sysinit/"
 SSHPort="22"
 RootPass="raspberry"
 PiPass="raspberry"
-BasePkg=" wget lrzsz sysstat ntpdate expect vim iptables "
-AppendPkg=""
-MyService="cron networking ssh  "
+aptupdate="enable"
+BasePkg=" wget lrzsz sysstat ntpdate expect vim mlocate "
+AppendPkg=" tzdata ntpdate "
+MyService=" bootlogs ifplugd rsyslog sudo cron dbus dphys-swapfile sysstat rc.local rmnologin networking ssh  "
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rpi/"
 
@@ -126,6 +127,14 @@ if [ `id -u` != "0" ]; then
 exit 1
 fi
 
+printf " o----------------------------------------------------------------o\n"
+printf " |                                                                |"
+printf " |              This Script Need Internet Connect.                |"
+printf " |          Hit [ENTER] to continue or ctrl+c to exit             |"
+printf " |                                                                |"
+printf " o----------------------------------------------------------------o\n"  
+read entcs 
+
 if [ ! -d $HomeDir ]; then
 	mkdir -p $HomeDir
 fi
@@ -138,36 +147,51 @@ cd $HomeDir || _error_exit "Enter ${HomeDir} Faild."
 echo $RootPass | passwd --stdin root
 echo $PiPass | passwd --stdin pi
 
+##Set Hostname
+echo "${MyHost}.${MyDomain}" >> /etc/hostname
+
+##Set Language ,Language list in /usr/share/i18n/SUPPORTED
+echo "LANG=en_US.UTF-8" > /etc/default/locale
+echo "en_US.UTF-8 UTF-8" >> /etc/locale
+locale-gen
+
+##init 3
+sed -i 's/id:2:initdefault:/id:3:initdefault:/g' /etc/inittab
+
+##Set SeLinux
+if [ -f /etc/selinux/config ]; then                                                                    
+    changeconf SELINUX = disabled /etc/selinux/config
+fi
+
 ##Set Append DNS
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 ##Install Base Soft
-#apt install
+if [ "x${aptupdate}" == "xenable" ]; then
+    apg-get update
+fi
+apt-get -y install $BasePkg
+#Append Packge install
+apt-get -y install $AppendPkg
 #updatedb
+updatedb
 
 ##Set timezone
-if [ -f /usr/share/zoneinfo/Asia/Shanghai ]; then
-	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-else
-	wget --no-check-certificate ${SrcHost}${SrcPath}usr/share/zoneinfo/Asia/Shanghai
-	\cp Shanghai /etc/localtime
-fi
+rm -f /etc/localtime
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 ##Set ntp
 if [ -z "`whereis ntpdate |cut -d' ' -f2|grep '/'`" ]; then
-	echo "the ntp soft need install!";
-else
-	Ntpdate=`whereis ntpdate |cut -d' ' -f2`
-	$Ntpdate pool.ntp.org
-	echo "3 3 * * * root $Ntpdate pool.ntp.org >> /dev/null 2>&1" >> /etc/crontab
+    echo "the ntp soft need install! I'm Installing ...";
+    apt-get -y install ntpdate
 fi
-
-##Set Hostname
-changeconf HOSTNAME = \"${MyHost}.${MyDomain}\" /etc/sysconfig/network
+Ntpdate=`whereis ntpdate |cut -d' ' -f2`
+$Ntpdate pool.ntp.org
+echo "$Ntpdate pool.ntp.org >> /dev/null 2>&1" >> /etc/rc.local
+echo "3 3 * * * root $Ntpdate pool.ntp.org >> /dev/null 2>&1" >> /etc/crontab
 
 ##Set SSH Port & Conf
-
 changeconf Port space $SSHPort /etc/ssh/sshd_config
 changeconf ClientAliveInterval space 60 /etc/ssh/sshd_config
 changeconf ClientAliveCountMax space 5 /etc/ssh/sshd_config
@@ -190,18 +214,19 @@ EOF
 touch /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 
-##Set aliases
-##the system default alias in /etc/profile.d/* and /root/.bashrc
-echo "##  This is the user alias config by sysinit.sh" >> /etc/bashrc
-echo "alias wgets='wget --no-check-certificate'" >> /etc/bashrc
-echo "alias vi='vim'" >> /etc/bashrc
-
 ##Set default service at poweron
-for i in `chkconfig --list|grep 3:|cut -d" " -f1`;do
-	chkconfig --level 35 $i off
+cd /etc/rc3.d/
+for i in `ls S*`;do 
+    j=`echo $i|sed "s/^S/K/g"`;
+    mv $i $j;
 done
+k=`ls K*`
 for i in $MyService;do
-	chkconfig --level 35 $i on
+    if [ `echo $k|grep $i |wc -l ` -gt 0 ]; then
+        i=`ls K*|grep $i|head -n1`;
+        j=`echo $i|sed "s/^K/S/g"`;
+        mv $i $j;
+    fi
 done
 
 ##Set Iptables
@@ -215,16 +240,34 @@ iptables -A OUTPUT -p tcp --sport $SSHPort -j ACCEPT
 iptables -A INPUT -j DROP
 iptables -A OUTPUT -j DROP
 iptables -A FORWARD -j DROP
-/etc/init.d/iptables save
-
-##Set SeLinux
-if [ -f /etc/selinux/config ]; then                                                                    
-	sed 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
-fi
+iptables-save
 
 ############  Soft Config  ############
 
+##Set aliases
+##the system default alias in /etc/profile.d/* and /root/.bashrc
+cat >> /etc/bashrc << \EOF
+##  This is the user alias config by sysinit.sh
+alias wgets='wget --no-check-certificate'
+alias vi='vim'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias vi='vim'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+EOF
+
+##mnt dir
+mkdir -p /mnt/sys
+mkdir -p /mnt/program
+mkdir -p /mnt/soft
+mkdir -p /mnt/file
+
 ##vim config
+echo "You can config vim by https://github.com/AutoAndEasy/vimstyle"
 
 ############  Clean Cache  ############
 cd
