@@ -128,10 +128,10 @@ exit 1
 fi
 
 printf " o----------------------------------------------------------------o\n"
-printf " |                                                                |"
-printf " |              This Script Need Internet Connect.                |"
-printf " |          Hit [ENTER] to continue or ctrl+c to exit             |"
-printf " |                                                                |"
+printf " |                                                                |\n"
+printf " |              This Script Need Internet Connect.                |\n"
+printf " |          Hit [ENTER] to continue or ctrl+c to exit             |\n"
+printf " |                                                                |\n"
 printf " o----------------------------------------------------------------o\n"  
 read entcs 
 
@@ -143,16 +143,16 @@ cd $HomeDir || _error_exit "Enter ${HomeDir} Faild."
 
 ############  System Config  ############
 
-##password Initialization
-echo $RootPass | passwd --stdin root
-echo $PiPass | passwd --stdin pi
+##password Initialization;
+echo "root:${RootPass}" | chpasswd
+echo "pi:${PiPass}" | chpasswd
 
 ##Set Hostname
 echo "${MyHost}.${MyDomain}" >> /etc/hostname
 
 ##Set Language ,Language list in /usr/share/i18n/SUPPORTED
 echo "LANG=en_US.UTF-8" > /etc/default/locale
-echo "en_US.UTF-8 UTF-8" >> /etc/locale
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 
 ##init 3
@@ -169,7 +169,7 @@ echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 ##Install Base Soft
 if [ "x${aptupdate}" == "xenable" ]; then
-    apg-get update
+    apt-get update
 fi
 apt-get -y install $BasePkg
 #Append Packge install
@@ -246,7 +246,7 @@ iptables-save
 
 ##Set aliases
 ##the system default alias in /etc/profile.d/* and /root/.bashrc
-cat >> /etc/bashrc << \EOF
+cat >> /etc/bash.bashrc << \EOF
 ##  This is the user alias config by sysinit.sh
 alias wgets='wget --no-check-certificate'
 alias vi='vim'
