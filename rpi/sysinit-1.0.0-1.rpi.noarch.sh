@@ -265,6 +265,10 @@ mkdir -p /mnt/sys
 mkdir -p /mnt/program
 mkdir -p /mnt/soft
 mkdir -p /mnt/file
+mkdir -p /mytools/src/
+mkdir -p /mytools/script/
+mkdir -p /mytools/app/
+mkdir -p /mytools/data/
 
 ##vim config
 echo "You can config vim by https://github.com/AutoAndEasy/vimstyle"
