@@ -4,10 +4,8 @@
 
 ## Program: This is use for Linux System Initialization
 ## Author:chier xuefei
-## Date:2013-02-25
-## Update:20130309 chier xuefei add vim soft and it's config
-## Update:20170130 chier xuefei fix sshd_config
-
+## Date:2017-01-29
+## Update:20170129 create this.
 
 ################ Env Define ################
 
@@ -22,11 +20,11 @@ MyHost="localhost"
 MyDomain="localdomain"
 HomeDir="/tmp/sysinit/"
 SSHPort="22"
-BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced policycoreutils iptables cronien rsyslog mlocate "
+BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced firewalld policycoreutils iptables cronien rsyslog mlocate "
 AppendPkg=" bind-utils tzdata "
 MyService="crond iptables network rsyslog sshd snmpd"
 SrcHost="https://raw.gitbub.com"
-SrcPath="/AutoAndEasy/sysinit/master/rhel6/"
+SrcPath="/AutoAndEasy/sysinit/master/rhel7/"
 
 ################ Func Define ################ 
 function _info_msg() {
@@ -36,7 +34,7 @@ echo -e " |                Thank you for use sysinit script!               |"
 echo -e " |                                                                |"
 echo -e " |                         Version: 1.0                           |"
 echo -e " |                                                                |"
-echo -e " |                     http://www.idcsrv.com                      |"
+echo -e " |                     http://www.madadm.com                      |"
 echo -e " |                                                                |"
 echo -e " |                   Author:翅儿学飞(chier xuefei)                |"
 echo -e " |                      Email:myregs@126.com                      |"
@@ -52,7 +50,7 @@ clear
 
 function _header() {
 	printf " o----------------------------------------------------------------o\n"
-	printf " | :: SYSINIT                                 v1.0.0 (2013/02/25) |\n"
+	printf " | :: SYSINIT                                 v1.0.0 (2017/01/29) |\n"
 	printf " o----------------------------------------------------------------o\n"	
 }
 
@@ -103,7 +101,7 @@ echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 ##Install Base Soft
 yum -y install $BasePkg
-if [ ! -z $AppendPkg ]; then
+if [ ! -z "$AppendPkg" ]; then
 	yum -y install $AppendPkg
 fi
 updatedb
@@ -129,12 +127,13 @@ fi
 changeconf HOSTNAME = \"${MyHost}.${MyDomain}\" /etc/sysconfig/network
 
 ##Set SSH Port & Conf
-
 changeconf Port space ${SSHPort} /etc/ssh/sshd_config
 changeconf ClientAliveInterval space 60 /etc/ssh/sshd_config
 changeconf ClientAliveCountMax space 5 /etc/ssh/sshd_config
+
 ##create ssh key
-rm -rf /root/.ssh
+if [ ! -f /root/.ssh/authorized_keys ]; then
+    rm -rf /root/.ssh
 expect << EOF
 spawn bash -c "ssh-keygen -t dsa"
 match_max 100000
@@ -149,8 +148,9 @@ Enter same passphrase again: "
 send -- "\r"
 expect eof
 EOF
-touch /root/.ssh/authorized_keys
-chmod 600 /root/.ssh/authorized_keys
+    touch /root/.ssh/authorized_keys
+    chmod 600 /root/.ssh/authorized_keys
+fi
 
 ##Set aliases
 ##the system default alias in /etc/profile.d/* and /root/.bashrc
@@ -159,11 +159,15 @@ echo "alias wgets='wget --no-check-certificate'" >> /etc/bashrc
 echo "alias vi='vim'" >> /etc/bashrc
 
 ##Set default service at poweron
-for i in `chkconfig --list|grep 3:|cut -d" " -f1`;do
-	chkconfig --level 35 $i off
+for i in `systemctl -t service list-unit-files |cut -d' ' -f1 |grep 'service$'`;do
+    systemctl disable ${i}
 done
 for i in $MyService;do
-	chkconfig --level 35 $i on
+    if [ ! -z "`systemctl -t service list-unit-files |grep ${i}.service`" ]; then
+        systemctl enable ${i}.service
+    else
+        echo "Service ${i} not find!"
+    fi
 done
 
 ##Set Iptables
