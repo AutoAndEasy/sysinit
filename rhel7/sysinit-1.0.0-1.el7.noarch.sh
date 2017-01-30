@@ -22,7 +22,7 @@ HomeDir="/tmp/sysinit/"
 SSHPort="22"
 BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced firewalld policycoreutils iptables cronien rsyslog mlocate "
 AppendPkg=" bind-utils tzdata "
-MyService="crond iptables network rsyslog sshd snmpd"
+MyService="rc-local crond iptables network rsyslog sshd snmpd"
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rhel7/"
 
