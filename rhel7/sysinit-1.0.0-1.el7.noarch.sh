@@ -96,6 +96,7 @@ cd $HomeDir || exit 1
 
 ############  System Config  ############
 ##Set Append DNS
+echo -e "\n" >> /etc/resolv.conf
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
@@ -185,7 +186,7 @@ iptables -A FORWARD -j DROP
 
 ##Set SeLinux
 if [ -f /etc/selinux/config ]; then                                                                    
-	sed 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+	sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 fi
 
 ############  Soft Config  ############
