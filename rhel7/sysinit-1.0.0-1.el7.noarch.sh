@@ -6,6 +6,7 @@
 ## Author:chier xuefei
 ## Date:2017-01-29
 ## Update:20170129 create this.
+## Update:20171118 add software; fix hostname; fix iptables save; fix service disable
 
 ################ Env Define ################
 
@@ -20,9 +21,9 @@ MyHost="localhost"
 MyDomain="localdomain"
 HomeDir="/tmp/sysinit/"
 SSHPort="22"
-BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced firewalld policycoreutils iptables cronien rsyslog mlocate "
-AppendPkg=" screen git tzdata net-tools tcpdump traceroute bind-utils "
-MyService="rc-local crond iptables network rsyslog sshd snmpd"
+BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced firewalld policycoreutils iptables iptables-services rsyslog mlocate cronie"
+AppendPkg="tmux screen git tzdata net-tools tcpdump traceroute bind-utils gcc gcc-c++ make automake autoconf patch libtool"
+MyService="sshd rsyslog rc-local crond iptables snmpd network"
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rhel7/"
 
@@ -126,6 +127,7 @@ fi
 
 ##Set Hostname
 changeconf HOSTNAME = \"${MyHost}.${MyDomain}\" /etc/sysconfig/network
+echo ${MyHost}.${MyDomain} > /etc/hostname
 
 ##Set SSH Port & Conf
 changeconf Port space ${SSHPort} /etc/ssh/sshd_config
@@ -160,7 +162,7 @@ echo "alias wgets='wget --no-check-certificate'" >> /etc/bashrc
 echo "alias vi='vim'" >> /etc/bashrc
 
 ##Set default service at poweron
-for i in `systemctl -t service list-unit-files |cut -d' ' -f1 |grep 'service$'`;do
+for i in `systemctl -t service list-unit-files |cut -d' ' -f1 |grep 'service$' |grep -v @`;do
     systemctl disable ${i}
 done
 for i in $MyService;do
@@ -182,7 +184,7 @@ iptables -A OUTPUT -p tcp --sport $SSHPort -j ACCEPT
 iptables -A INPUT -j DROP
 iptables -A OUTPUT -j DROP
 iptables -A FORWARD -j DROP
-/etc/init.d/iptables save
+service iptables save
 
 ##Set SeLinux
 if [ -f /etc/selinux/config ]; then                                                                    
@@ -199,4 +201,3 @@ echo 'set autoindent' >> /etc/vimrc
 
 ############  Clean Cache  ############
 rm -rf ${HomeDir}
-

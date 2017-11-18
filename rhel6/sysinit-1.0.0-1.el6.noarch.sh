@@ -7,6 +7,7 @@
 ## Date:2013-02-25
 ## Update:20130309 chier xuefei add vim soft and it's config
 ## Update:20170130 chier xuefei fix sshd_config
+## Update:20171118 chier xuefei add software
 
 
 ################ Env Define ################
@@ -23,7 +24,7 @@ MyDomain="localdomain"
 HomeDir="/tmp/sysinit/"
 SSHPort="22"
 BasePkg=" wget lrzsz sysstat ntpdate net-snmp expect vim-enhanced policycoreutils iptables cronien rsyslog mlocate "
-AppendPkg=" screen git tzdata net-tools tcpdump traceroute bind-utils "
+AppendPkg="tmux screen git tzdata net-tools tcpdump traceroute bind-utils gcc gcc-c++ make automake autoconf patch libtool"
 MyService="crond iptables network rsyslog sshd snmpd"
 SrcHost="https://raw.gitbub.com"
 SrcPath="/AutoAndEasy/sysinit/master/rhel6/"
