@@ -158,6 +158,14 @@ fi
 ##Set aliases
 ##the system default alias in /etc/profile.d/* and /root/.bashrc
 echo "##  This is the user alias config by sysinit.sh" >> /etc/bashrc
+echo "alias egrep='egrep --color=auto'" >> /etc/bashrc
+echo "alias fgrep='fgrep --color=auto'" >> /etc/bashrc
+echo "alias grep='grep --color=auto'" >> /etc/bashrc
+echo "alias ll='ls -l --color=auto'" >> /etc/bashrc
+echo "alias ls='ls --color=auto'" >> /etc/bashrc
+echo "alias cp='cp -i'" >> /etc/bashrc
+echo "alias mv='mv -i'" >> /etc/bashrc
+echo "alias rm='rm -i'" >> /etc/bashrc
 echo "alias wgets='wget --no-check-certificate'" >> /etc/bashrc
 echo "alias vi='vim'" >> /etc/bashrc
 
@@ -190,6 +198,9 @@ service iptables save
 if [ -f /etc/selinux/config ]; then                                                                    
 	sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 fi
+
+##set rc.local
+chmod a+x /etc/rc.d/rc.local
 
 ############  Soft Config  ############
 
