@@ -7,6 +7,7 @@
 ## Date:2017-01-29
 ## Update:20170129 create this.
 ## Update:20171118 add software; fix hostname; fix iptables save; fix service disable
+## Update:20200209 add secure policy with ssh
 
 ################ Env Define ################
 
@@ -130,7 +131,14 @@ changeconf HOSTNAME = \"${MyHost}.${MyDomain}\" /etc/sysconfig/network
 echo ${MyHost}.${MyDomain} > /etc/hostname
 
 ##Set SSH Port & Conf
+changeconf Protocol space 2 /etc/ssh/sshd_config
 changeconf Port space ${SSHPort} /etc/ssh/sshd_config
+changeconf MaxAuthTries space 10 /etc/ssh/sshd_config
+changeconf IgnoreRhosts space yes /etc/ssh/sshd_config
+changeconf PermitRootLogin space yes /etc/ssh/sshd_config
+changeconf AllowUsers space root /etc/ssh/sshd_config
+changeconf PermitRootLogin space yes /etc/ssh/sshd_config
+changeconf PermitEmptyPasswords space no /etc/ssh/sshd_config
 changeconf ClientAliveInterval space 60 /etc/ssh/sshd_config
 changeconf ClientAliveCountMax space 5 /etc/ssh/sshd_config
 
