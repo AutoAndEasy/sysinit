@@ -177,6 +177,10 @@ echo "alias rm='rm -i'" >> /etc/bashrc
 echo "alias wgets='wget --no-check-certificate'" >> /etc/bashrc
 echo "alias vi='vim'" >> /etc/bashrc
 
+##Set history
+echo "HISTSIZE=99999" > /etc/profile.d/history.sh
+echo 'HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S `whoami` "' > /etc/profile.d/history.sh
+
 ##Set default service at poweron
 for i in `systemctl -t service list-unit-files |cut -d' ' -f1 |grep 'service$' |grep -v @`;do
     systemctl disable ${i}
